@@ -1,0 +1,9 @@
+# .gitignore
+__pycache__/
+venv/
+*.pyc
+*.pyo
+*.pyd
+
+
+*firebase_config.json

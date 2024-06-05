@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/style.css') }}"
+    />
+    <title>Create Endpoint</title>
+  </head>
+  <body>
+    <div class="container">
+      <div class="form-container">
+        <h2>Cadastro de Endpoint</h2>
+        <form method="POST" action="{{ url_for('main.create_endpoint') }}">
+          <div class="form-group">
+            <label for="exchange">Exchange:</label>
+            <input type="text" id="exchange" name="exchange" required />
+          </div>
+          <div class="form-group">
+            <label for="base_point">Base Point:</label>
+            <input type="text" id="base_point" name="base_point" required />
+          </div>
+          <div class="form-group">
+            <label for="endpoints">Endpoints:</label>
+            <input type="text" id="endpoints" name="endpoints" required />
+          </div>
+          <div class="form-group">
+            <label for="observation">Observation:</label>
+            <textarea id="observation" name="observation"></textarea>
+          </div>
+          <button type="submit">Cadastrar Endpoint</button>
+        </form>
+      </div>
+
+      <!-- Seção para a nova implementação -->
+      <div class="new-section">
+        <h2>Lista de Endpoints</h2>
+        </h4>Você pode atualizar os campos digitando diretamente nas células abaixo:</h4>
+        <table id="editable-table">
+            <thead>
+                <tr>
+                    <th>Exchange</th>
+                    <th>Base Point</th>
+                    <th>Endpoints</th>
+                    <th>Observation</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for endpoint in endpoints %}
+                <tr>
+                    <td contenteditable="true">{{ endpoint.exchange }}</td>
+                    <td contenteditable="true">{{ endpoint.base_point }}</td>
+                    <td contenteditable="true">{{ endpoint.endpoints }}</td>
+                    <td contenteditable="true">{{ endpoint.observation }}</td>
+                    <td>
+                        <button type="button" class="edit-btn">Editar</button>
+                        <button type="button" class="save-btn" style="display: none;">Salvar</button>
+                        <button type="button" class="cancel-btn" style="display: none;">Cancelar</button>
+                        <form method="POST" action="{{ url_for('main.delete_endpoint', index=loop.index0) }}">
+                            <button type="submit" class="delete-btn">Apagar</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div
+    </div>
+  </body>
+</html>
+<!-- Adicione este script no final do seu HTML para tornar a tabela editável -->
+<script>
+  $(document).ready(function () {
+      $("#editable-table td[contenteditable=true]").on("focus", function () {
+          // Armazena o valor original ao focar no campo
+          $(this).data("original-text", $(this).text());
+      });
+
+      $("#editable-table .edit-btn").on("click", function () {
+          // Habilita a edição dos campos na linha clicada
+          var row = $(this).closest("tr");
+          row.find("td[contenteditable=true]").prop("contenteditable", true);
+
+          // Exibe os botões de salvar e cancelar, oculta o botão de editar
+          row.find(".edit-btn").hide();
+          row.find(".save-btn, .cancel-btn").show();
+      });
+
+      $("#editable-table button.save-btn").on("click", function () {
+        // Desabilita a edição e salva as alterações
+        var row = $(this).closest("tr");
+        row.find("td[contenteditable=true]").prop("contenteditable", false);
+
+        // Exibe o botão de editar, oculta os botões de salvar e cancelar
+        row.find(".edit-btn").show();
+        row.find(".save-btn, .cancel-btn").hide();
+
+        // Obtém os dados da linha
+        var exchange = row.find("td:eq(0)").text();
+        var base_point = row.find("td:eq(1)").text();
+        var endpoints = row.find("td:eq(2)").text();
+        var observation = row.find("td:eq(3)").text();
+
+        // Obtém o índice da linha
+        var index = row.index();
+
+        // Cria um objeto JSON com os dados da tabela
+        var jsonData = {
+            exchange: exchange,
+            base_point: base_point,
+            endpoints: endpoints,
+            observation: observation,
+        };
+
+        // Envia o objeto JSON ao servidor Flask para atualizar o arquivo JSON
+        fetch("/update_endpoint", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({data: jsonData, index: index}),
+        })
+            .then((response) => response.json())
+            .then((data) => {
+                // Exibe mensagem de sucesso ou erro
+                if (data.success) {
+                    alert("Alterações salvas com sucesso!");
+                } else {
+                    alert("Erro ao salvar alterações!");
+                }
+            })
+            .catch((error) => {
+                console.error("Erro:", error);
+                alert("Erro ao salvar alterações!");
+            });
+    });
+
+      $("#editable-table .cancel-btn").on("click", function () {
+          // Cancela as alterações e restaura os valores originais
+          var row = $(this).closest("tr");
+          row.find("td[contenteditable=true]").prop("contenteditable", false);
+
+          // Restaura os valores originais
+          row.find("td[contenteditable=true]").each(function () {
+              var originalText = $(this).data("original-text");
+              $(this).text(originalText);
+          });
+
+          // Exibe o botão de editar, oculta os botões de salvar e cancelar
+          row.find(".edit-btn").show();
+          row.find(".save-btn, .cancel-btn").hide();
+      });
+  });
+</script>

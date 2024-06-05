@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exemplo de Requisição HTTP</title>
+</head>
+<body>
+
+<script>
+    // Substitua estas informações com suas credenciais
+    const apiKey = 'SUA_API_KEY';
+    const apiSecret = 'SUA_API_SECRET';
+    const apiUrl = 'https://api.gateio.la/api2/1/private/feelist';
+
+    // Função para criar a assinatura HMAC
+    function generateSignature(payload, secret) {
+        const signature = CryptoJS.HmacSHA512(payload, secret).toString(CryptoJS.enc.Hex);
+        return signature;
+    }
+
+    // Função para fazer a solicitação à API
+    async function makeRequest(apiKey, apiSecret, url, params = {}) {
+        // Adiciona informações obrigatórias à solicitação
+        params.api_key = apiKey;
+        params.timestamp = new Date().getTime();
+        const queryParams = Object.keys(params).sort().map(key => `${key}=${params[key]}`).join('&');
+        const signature = generateSignature(queryParams, apiSecret);
+
+        const headers = {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'KEY': apiKey,
+            'SIGN': signature
+        };
+
+        try {
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: headers,
+                body: new URLSearchParams(params)
+            });
+
+            const responseData = await response.json();
+            console.log(responseData);
+        } catch (error) {
+            console.error('Erro na solicitação:', error);
+        }
+    }
+
+    // Exemplo de uso
+    makeRequest(apiKey, apiSecret, apiUrl);
+</script>
+
+<!-- Inclua a biblioteca CryptoJS para o cálculo da assinatura HMAC -->
+<script src="https://crypto-js.googlecode.com/svn/tags/3.1.2/build/rollups/hmac-sha512.js"></script>
+<script src="https://crypto-js.googlecode.com/svn/tags/3.1.2/build/components/enc-base64-min.js"></script>
+
+</body>
+</html>

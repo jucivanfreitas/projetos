@@ -1,0 +1,30 @@
+<!-- app/templates/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <!-- Seu cabeçalho aqui -->
+
+    <script>
+      // Verifica a autenticação após 3 segundos
+      setTimeout(function () {
+        fetch("/check_auth")
+          .then((response) => response.json())
+          .then((data) => {
+            if (!data.authenticated) {
+              // Usuário não autenticado, redireciona para a página de login
+              window.location.replace("/auth/login");
+            } else {
+              // Usuário autenticado, redireciona para a página de boas-vindas
+              window.location.replace("/home");
+            }
+          })
+          .catch((error) =>
+            console.error("Erro ao verificar autenticação:", error)
+          );
+      }, 1000);
+    </script>
+  </head>
+  <body>
+    Verificando Login
+  </body>
+</html>

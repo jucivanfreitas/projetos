@@ -1,0 +1,26 @@
+[
+  {
+    "exchange": "Binance",
+    "base_point": "https://api2.binance.com",
+    "endpoints": "/api/v3/exchangeInfo",
+    "observation": "Pares"
+  },
+  {
+    "exchange": "Binance",
+    "base_point": "https://api3.binance.com",
+    "endpoints": "/api/v3/ticker/bookTicker",
+    "observation": "Tickers"
+  },
+  {
+    "exchange": "Binance",
+    "base_point": "https://api4.binance.com",
+    "endpoints": "/api/v3/time",
+    "observation": "time"
+  },
+  {
+    "exchange": "Binance",
+    "base_point": "https://api2.binance.com",
+    "endpoints": "/api/v3/ping",
+    "observation": "ping"
+  }
+]
